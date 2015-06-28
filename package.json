@@ -1,0 +1,11 @@
+{
+  "name": "OptionsHouse",
+  "version": "1.0.0",
+  "description": "Alexa Program",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "alex welch",
+  "license": "ISC"
+}
