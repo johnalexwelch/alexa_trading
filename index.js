@@ -4,7 +4,8 @@ var APP_ID = undefined;
 // The AlexSkill prototype and helper functions
 var http = require('http'),
 	alexaDateUtil = require('./alexaDateUtil'),
-	YQL = require('yql'),
+	yahooFinance = require('yahoo-finance'),
+	util = require('util');
 	AlexaSkill = require('./AlexaSkill');
 
 
@@ -120,21 +121,22 @@ function handleOneshotStockRequest(intent, session, response) {
  * respond to the user with the final answer.
  */
 function getFinalStockResponse(symbolTicker, date, response) {
+	makeStockRequest(symbolTicker, date, function stockResponseCallback(err,stockResponse){
+		var speechOutput;
+
+		if (err){
+			speechOutput = "Sorry, the service is experieinceing a problem. Please try again later.";
+		} else {
+			speechOutput = "Success";
+		}
+
+		response.tellWithCard(speechOutput, "OptionsHouse", speechOutput)
+	});
+
+	//	speechOutput = 'Got all the way to the response: ' + symbolTicker.ticker;
 
 
-var query = new YQL('SELECT * FROM weather.forecast WHERE (location = 94089)');
 
-query.exec(function(err, data) {
-  var location = data.query.results.channel.location;
-  var condition = data.query.results.channel.item.condition;
-  console.log('The current weather in ' + location.city + ', ' + location.region + ' is ' + condition.temp + ' degrees.');
-});
-
-	speechOutput = 'The current weather in ' + location.city + ', ' + location.region + ' is ' + condition.temp + ' degrees.';
-//	speechOutput = 'Got all the way to the response: ' + symbolTicker.ticker;
-
-
-	response.tellWithCard(speechOutput, "OptionsHouse", speechOutput)
  /*   // Issue the request, and respond to the user
     makeTideRequest(cityStation.station, date, function tideResponseCallback(err, highTideResponse) {
         var speechOutput;
@@ -152,6 +154,19 @@ query.exec(function(err, data) {
 
         response.tellWithCard(speechOutput, "TidePooler", speechOutput)
     });*/
+}
+
+function makeStockRequest(symbolTicker,date,stockResponseCallback){
+	var SYMBOL = 'aapl';
+	var FIELDS = ['s', 'n', 'd1', 'l1', 'y', 'r'];
+
+	yahooFinance.snapshot({
+  		symbol: SYMBOL,
+  		fields: FIELDS
+  	}, function (err, snapshot) {
+  		if (err) { throw err; }
+  		console.log(JSON.stringify(snapshot, null, 2));
+	});
 }
 
 
@@ -229,9 +244,19 @@ function getDateFromIntent(intent) {
 }
 
 // Creates the handler that responds to the Alex Request
-exports.handler = function(event,context){
+//exports.handler = function(event,context){
 	// Creates an instance of the OptionsHouse skill
-	var optionsHouse = new OptionsHouse();
-	optionsHouse.execute(event,context);
-};
+//	var optionsHouse = new OptionsHouse();
+	//optionsHouse.execute(event,context);
+//};
+
+// For development/testing purposes
+exports.handler = function( event, context ) {
+  console.log( "Running index.handler" );
+  console.log( "==================================");
+  console.log( "event", event );
+  console.log( "==================================");
+  console.log( "Stopping index.handler" );
+  context.done( );
+}
 
